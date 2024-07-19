@@ -4,51 +4,28 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
-  Input,
-  Spinner
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Spinner,
 } from "@nextui-org/react";
-import { useSubmit } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useCsvHooks } from "~/hooks/useCsvHooks";
 
-interface CsvUploadProps {
-  csvData: string;
-  totalNumbers: number;
-  isDetailsFetched: boolean;
-}
-
-export default function CsvUpload({
-  csvData,
-  totalNumbers,
-  isDetailsFetched,
-}: CsvUploadProps): JSX.Element {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [csvFile, setCsvFile] = useState<File | null>(null);
-  const submit = useSubmit();
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files[0]) {
-      setCsvFile(e.target.files?.[0]);
-    }
-  }
-
-  async function handleFileUpload() {
-    if (csvFile) {
-      setLoading(true);
-      const fileContent = await csvFile.text();
-      const data = new FormData();
-      data.append("fileContent", fileContent);
-      submit(data, { method: "post" });
-    }
-  }
-
-  useEffect(() => {
-    if (loading && isDetailsFetched) {
-      setLoading(false);
-    }
-  }, [isDetailsFetched]);
-
-  const isCSVGenerated: boolean = !loading && isDetailsFetched;
-  console.log("SW isCSVGenerated", isCSVGenerated);
+export default function CsvUpload(): JSX.Element {
+  const {
+    loading,
+    csvFields,
+    selectedField,
+    setSelectedField,
+    isFieldsParsed,
+    totalNumbers,
+    csvData,
+    handleFileChange,
+    apiCall,
+    isCSVGenerated,
+    csvFile,
+  } = useCsvHooks();
 
   return (
     <div className="p-2 font-sans">
@@ -59,34 +36,81 @@ export default function CsvUpload({
           </CardHeader>
           {loading ? (
             <Spinner />
+          ) : isFieldsParsed && !isCSVGenerated ? (
+            <CardBody>
+              <p className="text-xs mb-2">
+                Please select the field which contains <b>phone numbers</b>
+              </p>
+            </CardBody>
           ) : isCSVGenerated ? (
             <CardBody>
               <p className="text-xs mb-2">
                 {totalNumbers} Numbers Details Fetched Successfully
-              </p>  
+              </p>
             </CardBody>
           ) : (
             <CardBody>
               <p className="text-xs mb-2">
                 Upload a formatted CSV to lookup in bulk via twilio api.
               </p>
-              <Input type="file" onChange={handleFileChange} />
+              <input type="file" onChange={handleFileChange} />
             </CardBody>
           )}
           <CardFooter>
             {isCSVGenerated ? (
               <Button color="primary">
-                <a 
-                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvData)}`}
+                <a
+                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(
+                    csvData
+                  )}`}
                   download="phone_details.csv"
                 >
                   Download CSV
                 </a>
               </Button>
             ) : (
-              <Button color="primary" onClick={handleFileUpload} type="submit">
-                {loading ? "Processing" : "Upload CSV"}
-              </Button>
+              <div className="flex gap-3 justify-between w-full">
+                <Button
+                  color="primary"
+                  // className={(isFieldsParsed && !selectedField) || !csvFile ? 'cursor-not-allowed' : ''}
+                  isDisabled={
+                    (isFieldsParsed && !selectedField) || !csvFile
+                      ? true
+                      : false
+                  }
+                  onClick={() =>
+                    isFieldsParsed
+                      ? apiCall("get-details")
+                      : apiCall("parse-fields")
+                  }
+                  type="submit"
+                >
+                  {loading
+                    ? "Processing..."
+                    : isFieldsParsed
+                    ? "Lookup"
+                    : "Upload CSV"}
+                </Button>
+                {isFieldsParsed && !loading && (
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button variant="bordered">
+                        {selectedField ? selectedField : "Select Field"}
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu aria-label="Static Actions">
+                      {csvFields.map((field, i) => (
+                        <DropdownItem
+                          onClick={() => setSelectedField(field)}
+                          key={i}
+                        >
+                          {field}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </Dropdown>
+                )}
+              </div>
             )}
           </CardFooter>
         </Card>
