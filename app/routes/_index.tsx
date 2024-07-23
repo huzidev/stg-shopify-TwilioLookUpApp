@@ -85,7 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Error : ", error);
         // results.push({ number, error: (error as Error).message });
       }
-      await delay(100);
+      await delay(500);
     }
     console.log("SW results", results);
     const csv = Papa.unparse(results);
