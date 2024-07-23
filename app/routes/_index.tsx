@@ -50,6 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
     Papa.parse(fileContent, {
       header: true,
       dynamicTyping: true,
+      skipEmptyLines: true,
       complete: (results) => {
         console.log("SW result in parsing", results);
         results.data.forEach((row: { [key: string]: any }) => {
