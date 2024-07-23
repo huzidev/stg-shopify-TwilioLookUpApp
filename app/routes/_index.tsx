@@ -2,7 +2,8 @@ import { ActionFunctionArgs, json, type MetaFunction } from "@remix-run/node";
 import Papa from "papaparse";
 import twilio from "twilio";
 import CsvUpload from "~/components/CsvUpload";
-
+export const maxDuration = 20;
+ 
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
