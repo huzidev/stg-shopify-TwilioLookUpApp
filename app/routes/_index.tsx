@@ -72,7 +72,9 @@ export async function action({ request }: ActionFunctionArgs) {
       try {
         const response = await client.lookups.v2
           .phoneNumbers(number)
-          .fetch({ fields: "line_type_intelligence" });
+          .fetch(
+            {fields: "line_type_intelligence"},
+          );
         results.push({ number, ...response.lineTypeIntelligence });
         // const isMobile: boolean = response.lineTypeIntelligence.type === "mobile"
         // if (isMobile) {
@@ -85,7 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Error : ", error);
         // results.push({ number, error: (error as Error).message });
       }
-      await delay(500);
+      await delay(100);
     }
     console.log("SW results", results);
     const csv = Papa.unparse(results);
