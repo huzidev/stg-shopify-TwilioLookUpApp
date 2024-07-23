@@ -2,8 +2,15 @@ import { ActionFunctionArgs, json, type MetaFunction } from "@remix-run/node";
 import Papa from "papaparse";
 import twilio from "twilio";
 import CsvUpload from "~/components/CsvUpload";
-export const maxDuration = 20;
+export const maxDuration: number = 60;
+export const dynamic = 'force-dynamic';
  
+export function GET(request: Request) {
+  return new Response('Vercel', {
+    status: 200,
+  });
+}
+
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
