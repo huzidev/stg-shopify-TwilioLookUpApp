@@ -2,6 +2,8 @@ import { ActionFunctionArgs, json, type MetaFunction } from "@remix-run/node";
 import Papa from "papaparse";
 import twilio from "twilio";
 import CsvUpload from "~/components/CsvUpload";
+export const maxDuration: number = 60;
+export const dynamic = 'force-dynamic';
 
 export const meta: MetaFunction = () => {
   return [
